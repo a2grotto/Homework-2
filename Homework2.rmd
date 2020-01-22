@@ -1,0 +1,151 @@
+---
+title: "Hypothesis Testing"
+author: "Adam Grottoli"
+date: "January 14, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+setwd("C:/Users/Adam/Documents/R/R practice/BioStats/Homework 2/Homework-2")
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+```
+
+#Scenario 1
+##a) 
+H~0~: The mean shrimp catch in the Gulf of Mexico has not changed from 2009 to 2010.
+
+H~A~: The mean shrimp catch in the Gulf of Mexico has changed from 2009 to 2010
+
+##b)
+```{r}
+gulf.shrimp=read.csv("gulf.shrimp.csv")
+names(gulf.shrimp)[2]= paste("Catches_2009")
+names(gulf.shrimp)[3]=paste("Catches_2010")
+years.comb=melt(gulf.shrimp, id="village.Code")
+ggplot(years.comb,aes(x=value)) +
+  geom_histogram(binwidth=20000) +
+  labs(x='Catches (tonnes)', y='Frequency') +
+  facet_grid(variable~.)
+         
+```
+Figure 1. Histogram from 2009 catches and 2010 catches. (Bin size = 20 000)
+
+##c)
+A paired t-test will be used to test the hypothesis. Each village has a pair of measurements, one for each year, and these will be the pairs in the test. 
+
+##d)
+```{r}
+t.test(gulf.shrimp$Catches_2009, gulf.shrimp$Catches_2010, paired=TRUE) 
+```
+
+##e)
+```{r}
+qt(0.975,8)
+```
+The critical t value is 2.306004 and the observed t value is 2.938
+
+##f)
+From this test, the null hypothesis is rejected and there is a differnce in the mean catch in tonnes between the 2009 and 2010.
+
+#Scenario 2
+#a)
+H~0~: The mean phosphorus in the lake is not higher than 15μg/L.
+
+H~A~: The mean phosphorus in the lake is higher than 15μg/L.
+
+##b)
+```{r}
+erie_p=read.csv("phosphorus.csv")
+ggplot(erie_p,aes(x=total_p))  +
+  geom_histogram(binwidth=1)+
+labs(x=expression(paste('Total Phosphorus (',mu,'g/L)')), y='Frequency')
+```
+Figure 2. Histogram of total phosphorus measured at different sites on lake Erie
+
+##c) 
+A one-tailed one-sample t-test is used because the purpose of the test is find if the mean phosphorus levels in the lake are higher then the guideline maximum.
+
+##d)
+```{r}
+t.test(erie_p$total_p, mu=15)
+```
+One-tailed test therefore p-value = 0.09794/2 = 0.04897
+
+##e)
+```{r}
+qt(0.95,9)
+```
+The critical t value is 1.833113 and the observed t value is 1.8462.
+
+##f)
+The null hypothesis is rejected and the mean phosphorus level of the lake is above 15 μg/L.
+
+#Scenario 3
+##a)
+H~0~: The differnce in the mean growth rates of the carnivorous fish and the vegetarian fish is equal to 0.
+
+H~A~: The differnce in the mean growth rates of the carnivorous fish and the vegetarian fish is not equal to 0.
+
+##b)
+```{r}
+fish_growth=read.csv("fish_growth.csv")
+diet_comb=melt(fish_growth, id="trial")
+ggplot(diet_comb,aes(x=value))  +
+  geom_histogram(binwidth=0.1)+
+  labs(x='Growth (% body weight/day)', y='Frequency') +
+  facet_grid(variable~.)
+```
+Figure 3. Frequency of occurance of growth rates in vegetarian and carnvorous farmed salmon
+
+##c)
+An independent two-sample t-test to see if there is a differnce in the means of the two groups.
+
+##d)
+```{r}
+t.test(fish_growth$Carnivorous, fish_growth$Vegetarian)
+```
+
+##e)
+```{r}
+qt(0.975,29)
+```
+The critical t value is 2.04523 and the observed t value is 12.237.
+
+##f)
+The null hypothesis is rejected and there is a significant differnce in growth rates between the carnivorous and vegetarian fish.
+
+#Scenario 4
+##a)
+H~0~: Trophic level and PCB reproductive effects are independent.
+
+H~A~: Trophic level and PCB reproductice effects are not independent.
+
+##b)
+```{r}
+pcb_eff=read.csv('pcb_eff.csv')
+pcb_eff$Effect <- factor(pcb_eff$Effect, levels = c("NoEffect", "NoReproduction", "Death"))
+ggplot(pcb_eff, aes(x=Effect,  y=Individuals, fill=Diet)) +
+geom_bar(stat="identity", position=position_dodge()) +
+ labs(y='Number of Individuals', fill='Trophic Level') 
+```
+Figure 4. Number of individuals expressing effects of PCB at differnt trophic levels 
+
+##c)
+A Chi squared test should be used to test if the expected outcome is different from the actual outcome.
+
+##d)
+```{r}
+pcb_eff2 = data.frame(trophic_level1=c(133,100,17), predator=c(4,61,35))
+chisq.test(pcb_eff2)
+qchisq(0.95,2) 
+```
+
+##e)
+Critical X^2^ value is 5.991465 and the observed value is 89.253
+
+##f)
+The null hypothesis is rejected and trophic level is not independent of the effect on individuals
+

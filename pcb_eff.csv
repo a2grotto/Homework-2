@@ -1,0 +1,7 @@
+ Effect,Individuals,Diet
+NoEffect,133,Consumer
+NoReproduction,4,Consumer
+Death,17,Consumer
+NoEffect,4,Predator
+NoReproduction,61,Predator
+Death,35,Predator
